@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>AI Chatbot</title>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>AI Chatbot for Students</h1>
+        <div id="chat-box" class="chat-box">
+            <div id="messages" class="messages"></div>
+        </div>
+        <div class="input-container">
+            <button id="voice-button" class="voice-button"><i class="fas fa-microphone"></i></button>
+            <input type="text" id="user-input" class="user-input" placeholder="Ask your question...">
+            <button id="send-button" class="send-button"><i class="fas fa-paper-plane"></i></button>
+            <button id="mail-button" class="mail-button"><i class="fas fa-envelope"></i> Mail</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const voiceButton = document.getElementById('voice-button');
+        const userInput = document.getElementById('user-input');
+        const mailButton = document.getElementById('mail-button');
+        const sendButton = document.getElementById('send-button');
+        const messagesContainer = document.getElementById('messages');
+
+        // Voice recognition setup with webkitSpeechRecognition
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            voiceButton.addEventListener('click', () => {
+                recognition.start();
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+            };
+
+            recognition.onspeechend = () => {
+                recognition.stop();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Voice recognition error:', event.error);
+                alert('Voice recognition error: ' + event.error);
+            };
+        } else {
+            alert("Your browser does not support voice recognition.");
+        }
+
+        // Collect messages and send as an email
+        mailButton.addEventListener('click', () => {
+            let messages = Array.from(messagesContainer.children).map(msg => msg.innerText).join("\n");
+            let subject = "Chatbot Conversation";
+            let body = encodeURIComponent(messages);
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        });
+
+        // Send message when the Enter key is pressed
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                sendButton.click(); 
+            }
+        });
+    </script>
+</body>
+</html>
